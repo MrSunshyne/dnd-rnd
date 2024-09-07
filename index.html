@@ -3,12 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite + TypeScript + Tailwind CSS</title>
+    <title>Drag and Drop UI</title>
+    <style>
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+        .section {
+            min-height: 200px;
+            border: 2px solid #333;
+            padding: 10px;
+        }
+        .card {
+            background-color: #f0f0f0;
+            border: 1px solid #999;
+            padding: 10px;
+            margin: 5px 0;
+            cursor: move;
+        }
+        h3 {
+            margin-top: 0;
+        }
+        .add-card-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <div id="app" class="container">
-        <h1 class="text-6xl font-bold mb-4">Hello Vite + TypeScript + Tailwind CSS</h1>
+<body>
+    <div class="container">
+        <div id="pool1" class="section" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>Pool 1</h3>
+            <button class="add-card-btn" onclick="addCard('pool1')">Add Card</button>
+        </div>
+        <div id="form1" class="section" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>Form 1</h3>
+            <div id="card1" class="card" draggable="true" ondragstart="drag(event)">Card 1</div>
+            <div id="card2" class="card" draggable="true" ondragstart="drag(event)">Card 2</div>
+            <div id="card3" class="card" draggable="true" ondragstart="drag(event)">Card 3</div>
+        </div>
+        <div id="pool2" class="section" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>Pool 2</h3>
+            <button class="add-card-btn" onclick="addCard('pool2')">Add Card</button>
+        </div>
+        <div id="form2" class="section" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>Form 2</h3>
+            <div id="card4" class="card" draggable="true" ondragstart="drag(event)">Card 4</div>
+            <div id="card5" class="card" draggable="true" ondragstart="drag(event)">Card 5</div>
+        </div>
     </div>
-    <script type="module" src="/src/main.ts"></script>
+
+    <script>
+        let cardCounter = 5; // Start from 5 since we already have cards 1-5
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+            ev.dataTransfer.setData("sourceSection", ev.target.closest('.section').id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            var sourceSection = ev.dataTransfer.getData("sourceSection");
+            var targetSection = ev.target.closest('.section').id;
+            var draggedElement = document.getElementById(data);
+
+            if (isValidMove(sourceSection, targetSection)) {
+                if (draggedElement && ev.target.classList.contains('section')) {
+                    ev.target.appendChild(draggedElement);
+                } else if (draggedElement && ev.target.classList.contains('card')) {
+                    ev.target.parentNode.insertBefore(draggedElement, ev.target.nextSibling);
+                }
+            }
+        }
+
+        function isValidMove(sourceSection, targetSection) {
+            const validMoves = {
+                'form1': ['form1', 'pool1'],
+                'form2': ['form2', 'pool2'],
+                'pool1': ['form1', 'pool1'],
+                'pool2': ['form2', 'pool2']
+            };
+            return validMoves[sourceSection] && validMoves[sourceSection].includes(targetSection);
+        }
+
+        function addCard(poolId) {
+            cardCounter++;
+            const newCard = document.createElement('div');
+            newCard.id = 'card' + cardCounter;
+            newCard.className = 'card';
+            newCard.draggable = true;
+            newCard.ondragstart = drag;
+            newCard.textContent = 'Card ' + cardCounter;
+            
+            const pool = document.getElementById(poolId);
+            pool.insertBefore(newCard, pool.lastElementChild);
+        }
+    </script>
 </body>
 </html>
