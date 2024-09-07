@@ -25,15 +25,23 @@
             min-height: 200px;
             border: 2px solid #333;
             padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-content: flex-start;
         }
         .card {
             background-color: #f0f0f0;
             border: 1px solid #999;
-            padding: 10px;
-            margin: 5px 0;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             cursor: move;
         }
         .pool-header {
+            width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -135,7 +143,7 @@
             newCard.draggable = true;
             newCard.ondragstart = drag;
             newCard.setAttribute('data-card-id', cardCounter.toString());
-            newCard.textContent = 'Card ' + cardCounter;
+            newCard.textContent = cardCounter;
             
             const pool = document.getElementById(poolId);
             const poolHeader = pool.querySelector('.pool-header');
