@@ -25,6 +25,23 @@
             min-height: 200px;
             border: 2px solid #333;
             padding: 10px;
+            margin-bottom: 20px;
+        }
+        .pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-content: flex-start;
+        }
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .track {
+            min-height: 120px;
+            border: 1px dashed #666;
+            padding: 10px;
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
@@ -39,6 +56,7 @@
             justify-content: center;
             align-items: center;
             cursor: move;
+            font-size: 24px;
         }
         .pool-header {
             width: 100%;
@@ -61,43 +79,62 @@
             background-color: #008CBA;
             margin-top: 10px;
         }
+        .add-track-btn {
+            align-self: flex-start;
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="universal-pool" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="universal">
+        <div id="universal-pool" class="section pool" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="universal">
             <div class="pool-header">
-                <h3>Universal Pool</h3>
+                <h3>Universal Pool (cards that can be used anywhere)</h3>
                 <button class="add-card-btn" onclick="addCard('universal-pool')">Add Card</button>
             </div>
         </div>
         <div class="columns">
             <div class="column">
-                <div id="pool1" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="1">
+                <div id="pool1" class="section pool" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="1">
                     <div class="pool-header">
-                        <h3>Pool 1</h3>
+                        <h3>Pool 1 (only for form 1)</h3>
                         <button class="add-card-btn" onclick="addCard('pool1')">Add Card</button>
                     </div>
                 </div>
-                <div id="form1" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="1">
+                <div id="form1" class="section form" data-group="1">
                     <h3>Form 1</h3>
-                    <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="1">Card 1</div>
-                    <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="2">Card 2</div>
-                    <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="3">Card 3</div>
+                    <div class="track" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="1">1</div>
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="2">2</div>
+                    </div>
+                    <div class="track" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="3">3</div>
+                    </div>
+                    <button class="add-track-btn" onclick="addTrack('form1')">Add Track</button>
                     <button class="save-btn" onclick="saveForm('form1')">Save Form</button>
                 </div>
             </div>
             <div class="column">
-                <div id="pool2" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="2">
+                <div id="pool2" class="section pool" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="2">
                     <div class="pool-header">
-                        <h3>Pool 2</h3>
+                        <h3>Pool 2 (only for form 2)</h3>
                         <button class="add-card-btn" onclick="addCard('pool2')">Add Card</button>
                     </div>
                 </div>
-                <div id="form2" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="2">
+                <div id="form2" class="section form" data-group="2">
                     <h3>Form 2</h3>
-                    <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="4">Card 4</div>
-                    <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="5">Card 5</div>
+                    <div class="track" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="4">4</div>
+                    </div>
+                    <div class="track" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="5">5</div>
+                    </div>
+                    <button class="add-track-btn" onclick="addTrack('form2')">Add Track</button>
                     <button class="save-btn" onclick="saveForm('form2')">Save Form</button>
                 </div>
             </div>
@@ -105,7 +142,7 @@
     </div>
 
     <script>
-        let cardCounter = 5; // Start from 5 since we already have cards 1-5
+        let cardCounter = 5;
 
         function allowDrop(ev) {
             ev.preventDefault();
@@ -124,7 +161,7 @@
             var draggedElement = document.querySelector(`[data-card-id="${cardId}"]`);
 
             if (isValidMove(sourceGroup, targetGroup)) {
-                if (draggedElement && ev.target.classList.contains('section')) {
+                if (draggedElement && (ev.target.classList.contains('track') || ev.target.classList.contains('pool'))) {
                     ev.target.appendChild(draggedElement);
                 } else if (draggedElement && ev.target.classList.contains('card')) {
                     ev.target.parentNode.insertBefore(draggedElement, ev.target.nextSibling);
@@ -150,11 +187,23 @@
             pool.insertBefore(newCard, poolHeader.nextSibling);
         }
 
+        function addTrack(formId) {
+            const form = document.getElementById(formId);
+            const newTrack = document.createElement('div');
+            newTrack.className = 'track';
+            newTrack.ondrop = drop;
+            newTrack.ondragover = allowDrop;
+            form.insertBefore(newTrack, form.querySelector('.add-track-btn'));
+        }
+
         function saveForm(formId) {
             const form = document.getElementById(formId);
-            const cardIds = Array.from(form.querySelectorAll('.card'))
-                                 .map(card => card.getAttribute('data-card-id'));
-            console.log(`Cards in ${formId}:`, cardIds);
+            const tracks = form.querySelectorAll('.track');
+            const formData = Array.from(tracks).map(track => {
+                return Array.from(track.querySelectorAll('.card')).map(card => card.getAttribute('data-card-id'));
+            });
+            console.log(`Form ${formId} data:`, formData);
+            // Here you would typically send this data to a server
         }
     </script>
 </body>
