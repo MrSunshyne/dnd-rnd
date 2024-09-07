@@ -6,10 +6,15 @@
     <title>Drag and Drop UI</title>
     <style>
         .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+        }
+        .columns {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 20px;
-            padding: 20px;
         }
         .column {
             display: flex;
@@ -52,33 +57,41 @@
 </head>
 <body>
     <div class="container">
-        <div class="column">
-            <div id="pool1" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="1">
-                <div class="pool-header">
-                    <h3>Pool 1</h3>
-                    <button class="add-card-btn" onclick="addCard('pool1')">Add Card</button>
-                </div>
-            </div>
-            <div id="form1" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="1">
-                <h3>Form 1</h3>
-                <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="1">Card 1</div>
-                <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="2">Card 2</div>
-                <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="3">Card 3</div>
-                <button class="save-btn" onclick="saveForm('form1')">Save Form</button>
+        <div id="universal-pool" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="universal">
+            <div class="pool-header">
+                <h3>Universal Pool</h3>
+                <button class="add-card-btn" onclick="addCard('universal-pool')">Add Card</button>
             </div>
         </div>
-        <div class="column">
-            <div id="pool2" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="2">
-                <div class="pool-header">
-                    <h3>Pool 2</h3>
-                    <button class="add-card-btn" onclick="addCard('pool2')">Add Card</button>
+        <div class="columns">
+            <div class="column">
+                <div id="pool1" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="1">
+                    <div class="pool-header">
+                        <h3>Pool 1</h3>
+                        <button class="add-card-btn" onclick="addCard('pool1')">Add Card</button>
+                    </div>
+                </div>
+                <div id="form1" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="1">
+                    <h3>Form 1</h3>
+                    <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="1">Card 1</div>
+                    <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="2">Card 2</div>
+                    <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="3">Card 3</div>
+                    <button class="save-btn" onclick="saveForm('form1')">Save Form</button>
                 </div>
             </div>
-            <div id="form2" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="2">
-                <h3>Form 2</h3>
-                <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="4">Card 4</div>
-                <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="5">Card 5</div>
-                <button class="save-btn" onclick="saveForm('form2')">Save Form</button>
+            <div class="column">
+                <div id="pool2" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="2">
+                    <div class="pool-header">
+                        <h3>Pool 2</h3>
+                        <button class="add-card-btn" onclick="addCard('pool2')">Add Card</button>
+                    </div>
+                </div>
+                <div id="form2" class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="2">
+                    <h3>Form 2</h3>
+                    <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="4">Card 4</div>
+                    <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="5">Card 5</div>
+                    <button class="save-btn" onclick="saveForm('form2')">Save Form</button>
+                </div>
             </div>
         </div>
     </div>
@@ -112,7 +125,7 @@
         }
 
         function isValidMove(sourceGroup, targetGroup) {
-            return sourceGroup === targetGroup;
+            return sourceGroup === targetGroup || sourceGroup === 'universal' || targetGroup === 'universal';
         }
 
         function addCard(poolId) {
