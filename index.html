@@ -8,24 +8,24 @@
         .container {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            padding: 20px;
+            gap: 8px;
+            padding: 8px;
         }
         .columns {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            gap: 8px;
         }
         .column {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 8px;
         }
         .section {
-            min-height: 200px;
+            min-height: 100px;
             border: 2px solid #333;
             padding: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
         }
         .pool {
             display: flex;
@@ -39,9 +39,24 @@
             gap: 10px;
         }
         .track {
-            min-height: 120px;
+            min-height: 80px;
             border: 1px dashed #666;
             padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .track-header {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .track-label {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .track-content {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
@@ -50,8 +65,8 @@
         .card {
             background-color: #f0f0f0;
             border: 1px solid #999;
-            width: 100px;
-            height: 100px;
+            width: 50px;
+            height: 50px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -94,7 +109,7 @@
     <div class="container">
         <div id="universal-pool" class="section pool" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="universal">
             <div class="pool-header">
-                <h3>Universal Pool (cards that can be used anywhere)</h3>
+                <h3>Universal Pool</h3>
                 <button class="add-card-btn" onclick="addCard('universal-pool')">Add Card</button>
             </div>
         </div>
@@ -102,17 +117,25 @@
             <div class="column">
                 <div id="pool1" class="section pool" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="1">
                     <div class="pool-header">
-                        <h3>Pool 1 (only for form 1)</h3>
+                        <h3>Pool 1</h3>
                         <button class="add-card-btn" onclick="addCard('pool1')">Add Card</button>
                     </div>
                 </div>
                 <div id="form1" class="section form" data-group="1">
                     <h3>Form 1</h3>
                     <div class="track" ondrop="drop(event)" ondragover="allowDrop(event)">
-                        <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="1">1</div>
-                        <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="2">2</div>
+                        <div class="track-header">
+                            <input type="text" class="track-label" value="Track 1" onchange="updateTrackLabel(this)">
+                        </div>
+                        <div class="track-content">
+                            <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="1">1</div>
+                            <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="2">2</div>
+                        </div>
                     </div>
                     <div class="track" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="track-header">
+                            <input type="text" class="track-label" value="Track 2" onchange="updateTrackLabel(this)">
+                        </div>
                         <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="3">3</div>
                     </div>
                     <button class="add-track-btn" onclick="addTrack('form1')">Add Track</button>
@@ -122,16 +145,22 @@
             <div class="column">
                 <div id="pool2" class="section pool" ondrop="drop(event)" ondragover="allowDrop(event)" data-group="2">
                     <div class="pool-header">
-                        <h3>Pool 2 (only for form 2)</h3>
+                        <h3>Pool 2</h3>
                         <button class="add-card-btn" onclick="addCard('pool2')">Add Card</button>
                     </div>
                 </div>
                 <div id="form2" class="section form" data-group="2">
                     <h3>Form 2</h3>
                     <div class="track" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="track-header">
+                            <input type="text" class="track-label" value="Track 1" onchange="updateTrackLabel(this)">
+                        </div>
                         <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="4">4</div>
                     </div>
                     <div class="track" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="track-header">
+                            <input type="text" class="track-label" value="Track 2" onchange="updateTrackLabel(this)">
+                        </div>
                         <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="5">5</div>
                     </div>
                     <button class="add-track-btn" onclick="addTrack('form2')">Add Track</button>
@@ -157,14 +186,34 @@
             ev.preventDefault();
             var cardId = ev.dataTransfer.getData("text");
             var sourceGroup = ev.dataTransfer.getData("sourceGroup");
-            var targetGroup = ev.target.closest('.section').getAttribute('data-group');
+            var targetElement = ev.target.closest('.section, .track, .track-content');
+            if (!targetElement) return;
+            
+            var targetGroup = targetElement.closest('.section').getAttribute('data-group');
             var draggedElement = document.querySelector(`[data-card-id="${cardId}"]`);
 
-            if (isValidMove(sourceGroup, targetGroup)) {
-                if (draggedElement && (ev.target.classList.contains('track') || ev.target.classList.contains('pool'))) {
-                    ev.target.appendChild(draggedElement);
-                } else if (draggedElement && ev.target.classList.contains('card')) {
-                    ev.target.parentNode.insertBefore(draggedElement, ev.target.nextSibling);
+            if (isValidMove(sourceGroup, targetGroup) && draggedElement) {
+                if (targetElement.classList.contains('track-content')) {
+                    targetElement.appendChild(draggedElement);
+                } else if (targetElement.classList.contains('track')) {
+                    let trackContent = targetElement.querySelector('.track-content');
+                    if (!trackContent) {
+                        trackContent = document.createElement('div');
+                        trackContent.className = 'track-content';
+                        targetElement.appendChild(trackContent);
+                    }
+                    trackContent.appendChild(draggedElement);
+                } else if (targetElement.classList.contains('section')) {
+                    if (targetElement.classList.contains('pool')) {
+                        targetElement.appendChild(draggedElement);
+                    } else {
+                        let firstTrackContent = targetElement.querySelector('.track-content');
+                        if (firstTrackContent) {
+                            firstTrackContent.appendChild(draggedElement);
+                        } else {
+                            console.error('No valid drop target found in the form');
+                        }
+                    }
                 }
             }
         }
@@ -193,14 +242,44 @@
             newTrack.className = 'track';
             newTrack.ondrop = drop;
             newTrack.ondragover = allowDrop;
-            form.insertBefore(newTrack, form.querySelector('.add-track-btn'));
+            
+            const trackHeader = document.createElement('div');
+            trackHeader.className = 'track-header';
+            
+            const trackLabel = document.createElement('input');
+            trackLabel.type = 'text';
+            trackLabel.className = 'track-label';
+            trackLabel.value = `Track ${form.querySelectorAll('.track').length + 1}`;
+            trackLabel.onchange = function() { updateTrackLabel(this); };
+            
+            const trackContent = document.createElement('div');
+            trackContent.className = 'track-content';
+            
+            trackHeader.appendChild(trackLabel);
+            newTrack.appendChild(trackHeader);
+            newTrack.appendChild(trackContent);
+            
+            const addTrackBtn = form.querySelector('.add-track-btn');
+            if (addTrackBtn) {
+                form.insertBefore(newTrack, addTrackBtn);
+            } else {
+                form.appendChild(newTrack);
+            }
+        }
+
+        function updateTrackLabel(input) {
+            // This function can be used to perform any actions when the label is updated
+            console.log(`Track label updated to: ${input.value}`);
         }
 
         function saveForm(formId) {
             const form = document.getElementById(formId);
             const tracks = form.querySelectorAll('.track');
             const formData = Array.from(tracks).map(track => {
-                return Array.from(track.querySelectorAll('.card')).map(card => card.getAttribute('data-card-id'));
+                return {
+                    label: track.querySelector('.track-label').value,
+                    cards: Array.from(track.querySelectorAll('.card')).map(card => card.getAttribute('data-card-id'))
+                };
             });
             console.log(`Form ${formId} data:`, formData);
             // Here you would typically send this data to a server
