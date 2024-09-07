@@ -11,6 +11,11 @@
             gap: 20px;
             padding: 20px;
         }
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
         .section {
             min-height: 200px;
             border: 2px solid #333;
@@ -23,39 +28,58 @@
             margin: 5px 0;
             cursor: move;
         }
-        h3 {
-            margin-top: 0;
+        .pool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
-        .add-card-btn {
-            margin-top: 10px;
+        h3 {
+            margin: 0;
+        }
+        .add-card-btn, .save-btn {
             padding: 5px 10px;
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
         }
+        .save-btn {
+            background-color: #008CBA;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="pool1" class="section" ondrop="drop(event)" ondragover="allowDrop(event)">
-            <h3>Pool 1</h3>
-            <button class="add-card-btn" onclick="addCard('pool1')">Add Card</button>
+        <div class="column">
+            <div id="pool1" class="section" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <div class="pool-header">
+                    <h3>Pool 1</h3>
+                    <button class="add-card-btn" onclick="addCard('pool1')">Add Card</button>
+                </div>
+            </div>
+            <div id="form1" class="section" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h3>Form 1</h3>
+                <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="1">Card 1</div>
+                <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="2">Card 2</div>
+                <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="3">Card 3</div>
+                <button class="save-btn" onclick="saveForm('form1')">Save Form</button>
+            </div>
         </div>
-        <div id="form1" class="section" ondrop="drop(event)" ondragover="allowDrop(event)">
-            <h3>Form 1</h3>
-            <div id="card1" class="card" draggable="true" ondragstart="drag(event)">Card 1</div>
-            <div id="card2" class="card" draggable="true" ondragstart="drag(event)">Card 2</div>
-            <div id="card3" class="card" draggable="true" ondragstart="drag(event)">Card 3</div>
-        </div>
-        <div id="pool2" class="section" ondrop="drop(event)" ondragover="allowDrop(event)">
-            <h3>Pool 2</h3>
-            <button class="add-card-btn" onclick="addCard('pool2')">Add Card</button>
-        </div>
-        <div id="form2" class="section" ondrop="drop(event)" ondragover="allowDrop(event)">
-            <h3>Form 2</h3>
-            <div id="card4" class="card" draggable="true" ondragstart="drag(event)">Card 4</div>
-            <div id="card5" class="card" draggable="true" ondragstart="drag(event)">Card 5</div>
+        <div class="column">
+            <div id="pool2" class="section" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <div class="pool-header">
+                    <h3>Pool 2</h3>
+                    <button class="add-card-btn" onclick="addCard('pool2')">Add Card</button>
+                </div>
+            </div>
+            <div id="form2" class="section" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h3>Form 2</h3>
+                <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="4">Card 4</div>
+                <div class="card" draggable="true" ondragstart="drag(event)" data-card-id="5">Card 5</div>
+                <button class="save-btn" onclick="saveForm('form2')">Save Form</button>
+            </div>
         </div>
     </div>
 
@@ -67,16 +91,16 @@
         }
 
         function drag(ev) {
-            ev.dataTransfer.setData("text", ev.target.id);
+            ev.dataTransfer.setData("text", ev.target.getAttribute('data-card-id'));
             ev.dataTransfer.setData("sourceSection", ev.target.closest('.section').id);
         }
 
         function drop(ev) {
             ev.preventDefault();
-            var data = ev.dataTransfer.getData("text");
+            var cardId = ev.dataTransfer.getData("text");
             var sourceSection = ev.dataTransfer.getData("sourceSection");
             var targetSection = ev.target.closest('.section').id;
-            var draggedElement = document.getElementById(data);
+            var draggedElement = document.querySelector(`[data-card-id="${cardId}"]`);
 
             if (isValidMove(sourceSection, targetSection)) {
                 if (draggedElement && ev.target.classList.contains('section')) {
@@ -100,14 +124,22 @@
         function addCard(poolId) {
             cardCounter++;
             const newCard = document.createElement('div');
-            newCard.id = 'card' + cardCounter;
             newCard.className = 'card';
             newCard.draggable = true;
             newCard.ondragstart = drag;
+            newCard.setAttribute('data-card-id', cardCounter.toString());
             newCard.textContent = 'Card ' + cardCounter;
             
             const pool = document.getElementById(poolId);
-            pool.insertBefore(newCard, pool.lastElementChild);
+            const poolHeader = pool.querySelector('.pool-header');
+            pool.insertBefore(newCard, poolHeader.nextSibling);
+        }
+
+        function saveForm(formId) {
+            const form = document.getElementById(formId);
+            const cardIds = Array.from(form.querySelectorAll('.card'))
+                                 .map(card => card.getAttribute('data-card-id'));
+            console.log(`Cards in ${formId}:`, cardIds);
         }
     </script>
 </body>
